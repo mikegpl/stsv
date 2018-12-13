@@ -47,7 +47,11 @@ def move_file_to_directory(base, file, dir_path):
     full_file_path = full_path(base, file)
     full_dir_path = full_path(base, dir_path)
     full_new_path = full_path(full_dir_path, file)
-    os.rename(full_file_path, full_new_path)
+    try:
+        os.rename(full_file_path, full_new_path)
+    except FileNotFoundError:
+        pass
+        # pass for now
 
 
 def move_category_to_directory(category_files, target_directory):
@@ -64,7 +68,7 @@ def run():
     extension, selected_dir, discarded_dir = parse()
     pictures_paths = list_files_in_directory(extension, PICS_DIRECTORY)
 
-    print("Press key for selecting images")
+    print("Press key used for selecting images")
     matt = cv2.imread(MATT_PATH)
     cv2.imshow("Hello there!", matt)
     selector = cv2.waitKey(WAIT_INFINITELY)
@@ -84,6 +88,7 @@ def run():
 
     create_and_fill_directory(file_decisions[Select], selected_dir)
     create_and_fill_directory(file_decisions[Discard], discarded_dir)
+
     create_directory(PICS_DIRECTORY, selected_dir)
     move_category_to_directory(file_decisions[Select], selected_dir)
 

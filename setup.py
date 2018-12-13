@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='stsv',
-    version='0.2',
+    version='0.3',
     description='Module for measuring time complexity of functions',
     license='MIT',
     url='www.github.com/mikegpl',
