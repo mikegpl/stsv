@@ -1,8 +1,11 @@
 import os
 import cv2
+import pkg_resources
+
 from stsv.argparser import parse
 
-MATT_PATH = "../pics/matt.png"
+MATT = "pics/matt.png"
+MATT_PATH = pkg_resources.resource_filename(__name__, MATT)
 PICS_DIRECTORY = "."
 WAIT_INFINITELY = 0
 
@@ -58,11 +61,12 @@ def create_and_fill_directory(files, directory_name):
 
 
 def run():
-    extension, selected_dir, discarded_dir = ".jpg", "selected", "discarded"  # parse()
+    extension, selected_dir, discarded_dir = parse()
     pictures_paths = list_files_in_directory(extension, PICS_DIRECTORY)
 
     print("Press key for selecting images")
-    cv2.imshow("Hello there!", cv2.imread(MATT_PATH))
+    matt = cv2.imread(MATT_PATH)
+    cv2.imshow("Hello there!", matt)
     selector = cv2.waitKey(WAIT_INFINITELY)
     file_decisions = {
         Select: [],
@@ -72,7 +76,7 @@ def run():
     for i in range(len(pictures_paths)):
         picture_path = pictures_paths[i]
         image = cv2.imread(full_path(PICS_DIRECTORY, picture_path))
-        cv2.imshow("Displaying picture {} of {}".format(i, i / len(pictures_paths)), image)
+        cv2.imshow("Displaying picture {} of {}".format(i, len(pictures_paths)), image)
         decision = Select if cv2.waitKey(WAIT_INFINITELY) == selector else Discard
         file_decisions[decision].append(picture_path)
 
@@ -86,4 +90,3 @@ def run():
     create_directory(PICS_DIRECTORY, discarded_dir)
     move_category_to_directory(file_decisions[Discard], discarded_dir)
     print("Finished. Sielo.")
-
