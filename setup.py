@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
     name='stsv',
-    version='0.3',
-    description='Module for measuring time complexity of functions',
+    version='0.4',
+    description='Pack for easy picture selection',
     license='MIT',
     url='www.github.com/mikegpl',
     author='Michał Grabowski',
