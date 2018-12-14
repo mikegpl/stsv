@@ -1,19 +1,23 @@
 import cv2
+import os
+import pkg_resources
 
-from stsv.decisions import Decision
-
-WAIT_INFINITELY = 0
+MATT = os.path.join("pics", "matt.png")
+MATT_PATH = pkg_resources.resource_filename(__name__, MATT)
 
 
 class Interface:
-    @staticmethod
-    def display_picture(caption, image):
-        cv2.destroyAllWindows()
-        cv2.imshow(caption, image)
+    WAIT_INFINITELY = 0
 
     @staticmethod
-    def get_decision(selector, positive_decision, negative_decision):
-        return Decision.SELECT if Interface.get_keystroke(WAIT_INFINITELY) == selector else Decision.DISCARD
+    def display_picture(caption, image_path):
+        cv2.destroyAllWindows()
+        cv2.imshow(caption, cv2.imread(image_path))
+
+    @staticmethod
+    def get_decision(selector, decisions):
+        is_selected = Interface.get_keystroke() == selector
+        return decisions[is_selected]
 
     @staticmethod
     def get_keystroke(timeout=WAIT_INFINITELY):
@@ -22,3 +26,14 @@ class Interface:
     @staticmethod
     def clear_screen():
         cv2.destroyAllWindows()
+
+
+class WelcomingInterface(Interface):
+    def __init__(self, welcome_image_path=MATT_PATH):
+        self.welcome_image_path = welcome_image_path
+
+    def welcome_and_get_decision_key(self):
+        print("Press key used for selecting images")
+        super().display_picture("Hello there", self.welcome_image_path)
+        return super().get_keystroke()
+

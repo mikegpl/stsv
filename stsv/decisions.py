@@ -12,6 +12,11 @@ class Decision(Enum):
                 Decision.DISCARD: "discarded"}
         return dirs[enum]
 
+    @staticmethod
+    def decision_map():
+        return {True: Decision.SELECT,
+                False: Decision.DISCARD}
+
 
 class DecisionExecutor:
     def __init__(self, base_directory, category_filenames, target_directory_name):
