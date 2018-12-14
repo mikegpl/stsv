@@ -1,4 +1,6 @@
 import os
+from enum import Enum
+
 import cv2
 import pkg_resources
 
@@ -10,16 +12,9 @@ PICS_DIRECTORY = "."
 WAIT_INFINITELY = 0
 
 
-class Decision:
-    pass
-
-
-class Select(Decision):
-    pass
-
-
-class Discard(Decision):
-    pass
+class Decision(Enum):
+    SELECT = 1
+    DISCARD = 2
 
 
 def list_files_in_directory(extension, pictures_directory_path):
@@ -73,25 +68,25 @@ def run():
     cv2.imshow("Hello there!", matt)
     selector = cv2.waitKey(WAIT_INFINITELY)
     file_decisions = {
-        Select: [],
-        Discard: []
+        Decision.SELECT: [],
+        Decision.DISCARD: []
     }
 
-    for i in range(len(pictures_paths)):
-        picture_path = pictures_paths[i]
+    for i, picture_path in enumerate(pictures_paths):
         image = cv2.imread(full_path(PICS_DIRECTORY, picture_path))
-        cv2.imshow("Displaying picture {} of {}".format(i, len(pictures_paths)), image)
-        decision = Select if cv2.waitKey(WAIT_INFINITELY) == selector else Discard
+        caption = "Displaying picture {} of {}".format(i, len(pictures_paths))
+        cv2.imshow(caption, image)
+        decision = Decision.SELECT if cv2.waitKey(WAIT_INFINITELY) == selector else Decision.DISCARD
         file_decisions[decision].append(picture_path)
 
     cv2.destroyAllWindows()
 
-    create_and_fill_directory(file_decisions[Select], selected_dir)
-    create_and_fill_directory(file_decisions[Discard], discarded_dir)
+    create_and_fill_directory(file_decisions[Decision.SELECT], selected_dir)
+    create_and_fill_directory(file_decisions[Decision.DISCARD], discarded_dir)
 
     create_directory(PICS_DIRECTORY, selected_dir)
-    move_category_to_directory(file_decisions[Select], selected_dir)
+    move_category_to_directory(file_decisions[Decision.SELECT], selected_dir)
 
     create_directory(PICS_DIRECTORY, discarded_dir)
-    move_category_to_directory(file_decisions[Discard], discarded_dir)
+    move_category_to_directory(file_decisions[Decision.DISCARD], discarded_dir)
     print("Finished. Sielo.")
