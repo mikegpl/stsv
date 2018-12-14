@@ -59,6 +59,16 @@ def create_and_fill_directory(files, directory_name):
     move_category_to_directory(files, directory_name)
 
 
+def display_picture(caption, picture_path):
+    cv2.destroyAllWindows()
+    image = cv2.imread(full_path(PICS_DIRECTORY, picture_path))
+    cv2.imshow(caption, image)
+
+
+def get_decision(selector):
+    return Decision.SELECT if cv2.waitKey(WAIT_INFINITELY) == selector else Decision.DISCARD
+
+
 def run():
     extension, selected_dir, discarded_dir = parse()
     pictures_paths = list_files_in_directory(extension, PICS_DIRECTORY)
@@ -73,10 +83,9 @@ def run():
     }
 
     for i, picture_path in enumerate(pictures_paths):
-        image = cv2.imread(full_path(PICS_DIRECTORY, picture_path))
         caption = "Displaying picture {} of {}".format(i, len(pictures_paths))
-        cv2.imshow(caption, image)
-        decision = Decision.SELECT if cv2.waitKey(WAIT_INFINITELY) == selector else Decision.DISCARD
+        display_picture(caption, picture_path)
+        decision = get_decision(selector)
         file_decisions[decision].append(picture_path)
 
     cv2.destroyAllWindows()
