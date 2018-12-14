@@ -10,7 +10,8 @@ def parse():
     parser.add_argument(dest='extension',
                         type=str,
                         help='Extension of your photos files')
-    parser.add_argument(dest='directory',
+    parser.add_argument('-dir',
+                        dest='directory',
                         type=str,
                         default=DEFAULT_WORKING_DIRECTORY,
                         help='Location of your pictures. For now, only \'.\' works correctly.',
