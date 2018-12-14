@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 
+PICS_DIRECTORY = "."
+
 
 def parse():
     parser = ArgumentParser(description="SwipeToSelectViewer - package for easier cleanups of your photos library")
@@ -19,7 +21,7 @@ def parse():
                         default='discarded',
                         required=False)
     args = vars(parser.parse_args())
-    return args.get('extension'), args.get('selected'), args.get('discarded')
+    return args.get('extension'), PICS_DIRECTORY, args.get('selected'), args.get('discarded')
 
 
 if __name__ == '__main__':
