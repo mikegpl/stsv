@@ -1,5 +1,5 @@
 from stsv.argparser import parse
-from stsv.decisions import DecisionExecutor, DecisionCollector, Decision
+from stsv.decisions import DecisionCollector, Decision, DecisionExecutionSupervisor
 from stsv.file_utils import FileUtils
 from stsv.interface import Interface, WelcomingInterface
 
@@ -14,13 +14,13 @@ def run():
         caption = "Displaying picture {}. {} of {}".format(picture_path, i, len(pictures_paths))
         Interface.display_picture(caption, picture_path)
         decision = Interface.get_decision(selector, Decision.decision_map())
-        collector.make_decision(decision, picture_path)
+        collector.record_decision(decision, picture_path)
 
     Interface.clear_screen()
-    executor_selected = DecisionExecutor(pics_directory, collector.selected(), Decision.dir_for_enum(Decision.SELECT))
-    executor_discarded = DecisionExecutor(pics_directory, collector.discarded(),
-                                          Decision.dir_for_enum(Decision.DISCARD))
 
-    executor_selected.move_category_to_directory()
-    executor_discarded.move_category_to_directory()
+    supervisor = DecisionExecutionSupervisor(pics_directory)
+    supervisor.execute(collector, {
+        Decision.SELECT: selected_dir,
+        Decision.DISCARD: discarded_dir
+    })
     print("Finished. Sielo.")

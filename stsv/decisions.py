@@ -7,12 +7,6 @@ class Decision(Enum):
     DISCARD = 2
 
     @staticmethod
-    def dir_for_enum(enum):
-        dirs = {Decision.SELECT: "selected",
-                Decision.DISCARD: "discarded"}
-        return dirs[enum]
-
-    @staticmethod
     def decision_map():
         return {True: Decision.SELECT,
                 False: Decision.DISCARD}
@@ -25,8 +19,6 @@ class DecisionExecutor:
         self.target_directory_name = target_directory_name
 
     def move_category_to_directory(self):
-        print("MUWING")
-        print(self.category_filenames)
         self._create_and_fill_directory()
         for path in self.category_filenames:
             FileUtils.move_file_to_directory(self.base_directory, path, self.target_directory_name)
@@ -42,11 +34,18 @@ class DecisionCollector:
             Decision.DISCARD: []
         }
 
-    def make_decision(self, decision, filename):
+    def record_decision(self, decision, filename):
         self.file_decisions[decision].append(filename)
 
-    def selected(self):
-        return self.file_decisions[Decision.SELECT]
+    def files_for_decision(self, decision):
+        return self.file_decisions[decision]
 
-    def discarded(self):
-        return self.file_decisions[Decision.DISCARD]
+
+class DecisionExecutionSupervisor:
+    def __init__(self, base_directory):
+        self.base_directory = base_directory
+
+    def execute(self, collector, decision_to_directory):
+        for decision, directory in decision_to_directory.items():
+            executor = DecisionExecutor(self.base_directory, collector.files_for_decision(decision), directory)
+            executor.move_category_to_directory()
