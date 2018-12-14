@@ -16,86 +16,124 @@ class Decision(Enum):
     SELECT = 1
     DISCARD = 2
 
-
-def list_files_in_directory(extension, pictures_directory_path):
-    files = [file for file in os.listdir(pictures_directory_path) if file.endswith(extension)]
-    return files
-
-
-def full_path(base, local):
-    return os.path.join(base, local)
+    @staticmethod
+    def dir_for_enum(enum):
+        dirs = {Decision.SELECT: "selected",
+                Decision.DISCARD: "discarded"}
+        return dirs[enum]
 
 
-def create_directory(base, dirname):
-    try:
-        path = full_path(base, dirname)
-        os.makedirs(path)
-        return True
-    except FileExistsError:
-        return False
+class FileUtils:
+    @staticmethod
+    def list_files_by_extension(extension, directory_path):
+        files = [file for file in os.listdir(directory_path) if file.endswith(extension)]
+        return files
+
+    @staticmethod
+    def full_path(base, local):
+        return os.path.join(base, local)
+
+    @staticmethod
+    def create_directory(base, dirname):
+        try:
+            path = FileUtils.full_path(base, dirname)
+            os.makedirs(path)
+            return True
+        except FileExistsError:
+            return False
+
+    @staticmethod
+    def move_file_to_directory(base_path, file_name, directory_name):
+        """
+        Yup, ugly as hell, but I don't care. Good enough for now.
+        """
+        path = FileUtils.full_path
+
+        full_file_path = path(base_path, file_name)
+        full_dir_path = path(base_path, directory_name)
+        full_new_path = path(full_dir_path, file_name)
+        try:
+            os.rename(full_file_path, full_new_path)
+        except FileNotFoundError:
+            pass
+            # pass for now
 
 
-def move_file_to_directory(base, file, dir_path):
-    """
-    Yup, ugly as hell, but I don't care. Good enough for now.
-    """
-    full_file_path = full_path(base, file)
-    full_dir_path = full_path(base, dir_path)
-    full_new_path = full_path(full_dir_path, file)
-    try:
-        os.rename(full_file_path, full_new_path)
-    except FileNotFoundError:
-        pass
-        # pass for now
+class DecisionExecutor:
+    def __init__(self, base_directory, category_filenames, target_directory_name):
+        self.base_directory = base_directory
+        self.category_filenames = category_filenames
+        self.target_directory_name = target_directory_name
+
+    def move_category_to_directory(self):
+        print("MUWING")
+        print(self.category_filenames)
+        self._create_and_fill_directory()
+        for path in self.category_filenames:
+            FileUtils.move_file_to_directory(self.base_directory, path, self.target_directory_name)
+
+    def _create_and_fill_directory(self):
+        FileUtils.create_directory(self.base_directory, self.target_directory_name)
 
 
-def move_category_to_directory(category_files, target_directory):
-    for path in category_files:
-        move_file_to_directory(PICS_DIRECTORY, path, target_directory)
+class Interface:
+    @staticmethod
+    def display_picture(caption, image):
+        cv2.destroyAllWindows()
+        cv2.imshow(caption, image)
+
+    @staticmethod
+    def get_decision(selector):
+        return Decision.SELECT if Interface.get_keystroke(WAIT_INFINITELY) == selector else Decision.DISCARD
+
+    @staticmethod
+    def get_keystroke(timeout):
+        return cv2.waitKey(timeout)
+
+    @staticmethod
+    def clear_screen():
+        cv2.destroyAllWindows()
 
 
-def create_and_fill_directory(files, directory_name):
-    create_directory(PICS_DIRECTORY, directory_name)
-    move_category_to_directory(files, directory_name)
+class DecisionCollector:
+    def __init__(self):
+        self.file_decisions = {
+            Decision.SELECT: [],
+            Decision.DISCARD: []
+        }
 
+    def make_decision(self, decision, filename):
+        self.file_decisions[decision].append(filename)
 
-def display_picture(caption, picture_path):
-    cv2.destroyAllWindows()
-    image = cv2.imread(full_path(PICS_DIRECTORY, picture_path))
-    cv2.imshow(caption, image)
+    def selected(self):
+        return self.file_decisions[Decision.SELECT]
 
-
-def get_decision(selector):
-    return Decision.SELECT if cv2.waitKey(WAIT_INFINITELY) == selector else Decision.DISCARD
+    def discarded(self):
+        return self.file_decisions[Decision.DISCARD]
 
 
 def run():
+    interface = Interface()
     extension, selected_dir, discarded_dir = parse()
-    pictures_paths = list_files_in_directory(extension, PICS_DIRECTORY)
+    pictures_paths = FileUtils.list_files_by_extension(extension, PICS_DIRECTORY)
 
+    interface.display_picture("Hello there", cv2.imread(MATT_PATH))
     print("Press key used for selecting images")
-    matt = cv2.imread(MATT_PATH)
-    cv2.imshow("Hello there!", matt)
-    selector = cv2.waitKey(WAIT_INFINITELY)
-    file_decisions = {
-        Decision.SELECT: [],
-        Decision.DISCARD: []
-    }
+
+    selector = interface.get_keystroke(WAIT_INFINITELY)
+    collector = DecisionCollector()
 
     for i, picture_path in enumerate(pictures_paths):
         caption = "Displaying picture {} of {}".format(i, len(pictures_paths))
-        display_picture(caption, picture_path)
-        decision = get_decision(selector)
-        file_decisions[decision].append(picture_path)
+        Interface.display_picture(caption, cv2.imread(picture_path))
+        decision = Interface.get_decision(selector)
+        collector.make_decision(decision, picture_path)
 
-    cv2.destroyAllWindows()
+    Interface.clear_screen()
+    executor_selected = DecisionExecutor(PICS_DIRECTORY, collector.selected(), Decision.dir_for_enum(Decision.SELECT))
+    executor_discarded = DecisionExecutor(PICS_DIRECTORY, collector.discarded(),
+                                          Decision.dir_for_enum(Decision.DISCARD))
 
-    create_and_fill_directory(file_decisions[Decision.SELECT], selected_dir)
-    create_and_fill_directory(file_decisions[Decision.DISCARD], discarded_dir)
-
-    create_directory(PICS_DIRECTORY, selected_dir)
-    move_category_to_directory(file_decisions[Decision.SELECT], selected_dir)
-
-    create_directory(PICS_DIRECTORY, discarded_dir)
-    move_category_to_directory(file_decisions[Decision.DISCARD], discarded_dir)
+    executor_selected.move_category_to_directory()
+    executor_discarded.move_category_to_directory()
     print("Finished. Sielo.")
