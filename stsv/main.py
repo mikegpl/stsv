@@ -6,7 +6,7 @@ import pkg_resources
 
 from stsv.argparser import parse
 
-MATT = "pics/matt.png"
+MATT = os.path.join("pics", "matt.png")
 MATT_PATH = pkg_resources.resource_filename(__name__, MATT)
 PICS_DIRECTORY = "."
 WAIT_INFINITELY = 0
@@ -23,7 +23,7 @@ def list_files_in_directory(extension, pictures_directory_path):
 
 
 def full_path(base, local):
-    return "{}/{}".format(base, local)
+    return os.path.join(base, local)
 
 
 def create_directory(base, dirname):
