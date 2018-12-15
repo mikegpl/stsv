@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='stsv',
-    version='0.4',
+    version='0.5',
     description='Pack for easy picture selection',
     license='MIT',
     url='www.github.com/mikegpl',
