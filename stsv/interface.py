@@ -35,7 +35,7 @@ class Interface:
         return int(width * scale), int(height * scale)
 
     @staticmethod
-    def get_decision(selector, decisions):
+    def await_decision(selector, decisions):
         is_selected = Interface.get_keystroke() == selector
         return decisions[is_selected]
 
