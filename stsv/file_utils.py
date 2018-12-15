@@ -4,7 +4,7 @@ import os
 class FileUtils:
     @staticmethod
     def list_files_by_extension(extension, directory_path):
-        files = [file for file in os.listdir(directory_path) if file.endswith(extension)]
+        files = [file for file in os.listdir(directory_path) if file.lower().endswith(extension.lower())]
         return files
 
     @staticmethod
