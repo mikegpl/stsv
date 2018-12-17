@@ -16,7 +16,7 @@ class Interface:
 
     def display_picture(self, caption, image_path):
         cv2.destroyAllWindows()
-        cv2.namedWindow(caption, cv2.WINDOW_NORMAL)
+        cv2.namedWindow(caption, cv2.WINDOW_GUI_NORMAL)
 
         picture = cv2.imread(image_path)
         scaled_width, scaled_height = self.scaled_to_screen_picture_size(picture)
