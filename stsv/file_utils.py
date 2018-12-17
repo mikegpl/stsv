@@ -5,7 +5,8 @@ class FileUtils:
     @staticmethod
     def list_files_by_extension(extension, directory_path):
         files = [file for file in os.listdir(directory_path) if file.lower().endswith(extension.lower())]
-        return files
+        sorted_by_name = sorted(files)
+        return sorted_by_name
 
     @staticmethod
     def full_path(base, local):
