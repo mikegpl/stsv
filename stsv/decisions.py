@@ -40,6 +40,9 @@ class DecisionCollector:
     def files_for_decision(self, decision):
         return self.file_decisions[decision]
 
+    def selected_count(self):
+        return len(self.file_decisions[Decision.SELECT])
+
 
 class DecisionExecutionSupervisor:
     def __init__(self, base_directory):

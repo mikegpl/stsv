@@ -12,7 +12,8 @@ def run():
 
     pictures_paths = FileUtils.list_files_by_extension(extension, pics_directory)
     for i, picture_path in enumerate(pictures_paths):
-        caption = "Displaying picture {}. {} of {}".format(picture_path, i + 1, len(pictures_paths))
+        caption = "Displaying picture {}. {} of {}. Selected {}".format(picture_path, i + 1, len(pictures_paths),
+                                                                        collector.selected_count())
         interface.display_picture(caption, picture_path)
         decision = interface.await_decision(decision_key, Decision.decision_map())
         collector.record_decision(decision, picture_path)
